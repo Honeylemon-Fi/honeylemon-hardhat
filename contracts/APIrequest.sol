@@ -1,89 +1,66 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.7;
 
-import './imports/ChainlinkClient.sol';
-import './imports/ConfirmedOwner.sol';
-
-/**
- * Request testnet LINK and ETH here: https://faucets.chain.link/
- * Find information on LINK Token Contracts and get the latest ETH and LINK faucets here: https://docs.chain.link/docs/link-token-contracts/
- */
+import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
+import "@chainlink/contracts/src/v0.8/ConfirmedOwner.sol";
 
 /**
- * THIS IS AN EXAMPLE CONTRACT WHICH USES HARDCODED VALUES FOR CLARITY.
- * THIS EXAMPLE USES UN-AUDITED CODE.
- * DO NOT USE THIS CODE IN PRODUCTION.
+ * @notice DO NOT USE THIS CODE IN PRODUCTION. This is an example contract.
  */
-
-contract APIConsumer is ChainlinkClient, ConfirmedOwner {
+contract GetUint256 is ChainlinkClient, ConfirmedOwner {
     using Chainlink for Chainlink.Request;
 
-    uint256 public volume;
-    bytes32 private jobId;
-    uint256 private fee;
+    uint256 private constant ORACLE_PAYMENT =
+        ((1 * LINK_DIVISIBILITY) / 100) * 5;
+    uint256 public value;
 
-    event RequestVolume(bytes32 indexed requestId, uint256 volume);
+    event RequestValue(bytes32 indexed requestId, uint256 indexed value);
 
-    /**
-     * @notice Initialize the link token and target oracle
-     *
-     * Goerli Testnet details:
-     * Link Token: 0x326C977E6efc84E512bB9C30f76E30c160eD06FB
-     * Oracle: 0xCC79157eb46F5624204f47AB42b3906cAA40eaB7 (Chainlink DevRel)
-     * jobId: ca98366cc7314957b8c012c72f05aeeb
-     *
-     */
+    string constant jobId = "7599d3c8f31e4ce78ad2b790cbcfc673";
+
     constructor() ConfirmedOwner(msg.sender) {
+        // GOERLI
         setChainlinkToken(0x326C977E6efc84E512bB9C30f76E30c160eD06FB);
-        setChainlinkOracle(0xCC79157eb46F5624204f47AB42b3906cAA40eaB7);
-        jobId = 'ca98366cc7314957b8c012c72f05aeeb';
-        fee = (1 * LINK_DIVISIBILITY) / 10; // 0,1 * 10**18 (Varies by network and job)
+        setChainlinkOracle(0x188b71C9d27cDeE01B9b0dfF5C1aff62E8D6F434);
     }
 
-    /**
-     * Create a Chainlink request to retrieve API response, find the target
-     * data, then multiply by 1000000000000000000 (to remove decimal places from data).
-     */
-    function requestVolumeData() public returns (bytes32 requestId) {
-        Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.fulfill.selector);
-
-        // Set the URL to perform the GET request on
-        req.add('get', 'https://commodities-api.com/api/latest?access_key=l4whf5gklaqeprcpijtws8tbo5y8hx46u6hmc6pv6yrlm6uu9cggjwfoea1v&base=USD&symbols=WHEAT');
-
-        // Set the path to find the desired data in the API response, where the response format is:
-        // {"RAW":
-        //   {"ETH":
-        //    {"USD":
-        //     {
-        //      "VOLUME24HOUR": xxx.xxx,
-        //     }
-        //    }
-        //   }
-        //  }
-        // request.add("path", "RAW.ETH.USD.VOLUME24HOUR"); // Chainlink nodes prior to 1.0.0 support this format
-        req.add('path', 'data,rates,WHEAT'); // Chainlink nodes 1.0.0 and later support this format
-
-        // Multiply the result by 1000000000000000000 to remove decimals
-        int256 timesAmount = 10**18;
-        req.addInt('times', timesAmount);
-
-        // Sends the request
-        return sendChainlinkRequest(req, fee);
+    function requestValue(
+        string memory _url,
+        int256 _multiply,
+        string memory _path
+    ) public onlyOwner returns (bytes32 requestId) {
+        Chainlink.Request memory req = buildChainlinkRequest(
+            stringToBytes32(jobId),
+            address(this),
+            this.fulfillValue.selector
+        );
+        req.add("get", _url);
+        req.add("path", _path);
+        req.addInt("multiply", _multiply);
+        return sendChainlinkRequest(req, ORACLE_PAYMENT);
     }
 
-    /**
-     * Receive the response in the form of uint256
-     */
-    function fulfill(bytes32 _requestId, uint256 _volume) public recordChainlinkFulfillment(_requestId) {
-        emit RequestVolume(_requestId, _volume);
-        volume = _volume;
+    function fulfillValue(bytes32 _requestId, uint256 _value)
+        public
+        recordChainlinkFulfillment(_requestId)
+    {
+        emit RequestValue(_requestId, _value);
+        value = _value;
     }
 
-    /**
-     * Allow withdraw of Link tokens from the contract
-     */
-    function withdrawLink() public onlyOwner {
-        LinkTokenInterface link = LinkTokenInterface(chainlinkTokenAddress());
-        require(link.transfer(msg.sender, link.balanceOf(address(this))), 'Unable to transfer');
+    function stringToBytes32(string memory source)
+        private
+        pure
+        returns (bytes32 result)
+    {
+        bytes memory tempEmptyStringTest = bytes(source);
+        if (tempEmptyStringTest.length == 0) {
+            return 0x0;
+        }
+
+        assembly {
+            // solhint-disable-line no-inline-assembly
+            result := mload(add(source, 32))
+        }
     }
 }

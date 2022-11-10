@@ -16,16 +16,18 @@ uint256 private fee;
 //Logic
 mapping (address => uint) tradeAmount;
 IERC20 public reserveToken;
-uint public BASECPRICE;
+uint public BASEPRICE;
 uint public expiryDate;
 
 event RequestVolume(bytes32 indexed requestId, uint256 volume);
+event Mint(address indexed sender, uint256 amount);
+event buyFuture(address indexed sender, uint256 amount);
 
-constructor(IERC20 _rToken, uint _expiryDate, string memory _name, string memory _symbol) ERC20(_name, _symbol) {
+constructor(IERC20 _rToken, uint _expiryDate) {
     reserveToken = _rToken;
     setChainlinkToken(0x326C977E6efc84E512bB9C30f76E30c160eD06FB);
-    setChainlinkOracle(0xCC79157eb46F5624204f47AB42b3906cAA40eaB7);
-    jobId = 'ca98366cc7314957b8c012c72f05aeeb';
+    setChainlinkOracle(0x188b71C9d27cDeE01B9b0dfF5C1aff62E8D6F434);
+    jobId = '7599d3c8f31e4ce78ad2b790cbcfc673';
     fee = (1 * LINK_DIVISIBILITY) / 10;
     expiryDate = _expiryDate;
 }
@@ -41,7 +43,7 @@ function requestVolumeData() public returns (bytes32 requestId) {
 
     function fulfill(bytes32 _requestId, uint256 _volume) public recordChainlinkFulfillment(_requestId) {
         emit RequestVolume(_requestId, _volume);
-        BASECPRICE = _volume;
+        BASEPRICE = _volume;
     }
 
     function withdrawLink() public onlyOwner {
@@ -51,14 +53,16 @@ function requestVolumeData() public returns (bytes32 requestId) {
 
     function mint(uint256 _amount) external onlyOwner {
         _mint(address(this), _amount);
+        emit Mint(msg.sender, amount0);
     }
 
     function buyFuture(uint _amount) external {
         require(block.timestamp < expiryDate, "FUTURE EXPIRED");
         uint256 timeNow = block.timestamp;
-        uint256 _price = BASECPRICE * (1+15*(expiryDate - timeNow/expiryDate));
+        uint256 _price = BASEPRICE * (1+15*(expiryDate - timeNow/expiryDate));
         reserveToken.transferFrom(msg.sender, address(this), _price);
         transfer(msg.sender, _amount);
+        emit buyFuture(msg.sender, amount);
     }
 
     function trade(uint _amount) external {
