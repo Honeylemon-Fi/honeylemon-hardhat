@@ -4,6 +4,17 @@ pragma solidity ^0.8.7;
 import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
 import "@chainlink/contracts/src/v0.8/ConfirmedOwner.sol";
 
+/**Goerli:
+ChainLinkToken: 0x326C977E6efc84E512bB9C30f76E30c160eD06FB
+ChainlinkOracle: 0x188b71C9d27cDeE01B9b0dfF5C1aff62E8D6F434
+JobId: 7599d3c8f31e4ce78ad2b790cbcfc673 or ca98366cc7314957b8c012c72f05aeeb or fcf4140d696d44b687012232948bdd5d
+
+Polygon testnet:
+ChainlinkToken: 0x326C977E6efc84E512bB9C30f76E30c160eD06FB
+ChainlinkOracle: 0x40193c8518BB267228Fc409a613bDbD8eC5a97b3
+JobId: 7599d3c8f31e4ce78ad2b790cbcfc673 or ca98366cc7314957b8c012c72f05aeeb or fcf4140d696d44b687012232948bdd5d
+ */
+
 /**
  * @notice DO NOT USE THIS CODE IN PRODUCTION. This is an example contract.
  */
