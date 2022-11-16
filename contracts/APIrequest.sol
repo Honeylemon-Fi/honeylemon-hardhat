@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.7;
+pragma solidity ^0.8.12;
 
-import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
-import "@chainlink/contracts/src/v0.8/ConfirmedOwner.sol";
+import "./imports/ChainlinkClient.sol";
+import "./imports/ConfirmedOwner.sol";
 
 /**Goerli:
 ChainLinkToken: 0x326C977E6efc84E512bB9C30f76E30c160eD06FB
