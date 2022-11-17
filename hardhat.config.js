@@ -12,6 +12,12 @@ module.exports = {
     polygon: {
       url: "https://rpc.ankr.com/polygon_mumbai",
       accounts: [process.env.MUMBAI]
+    },
+    goerli: {
+      url: "https://goerli.infura.io/v3/362a1f0f9f1f46b4a097f429ad40cb06",
+      accounts: [process.env.MUMBAI]
+    
+
     }
   }
 };

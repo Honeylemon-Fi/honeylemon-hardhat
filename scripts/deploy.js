@@ -7,12 +7,17 @@
 const hre = require("hardhat");
 
 async function main() {
+  const [deployer] = await ethers.getSigners();
+  
+  console.log("Deploying contracts with the account:", deployer.address);
+  console.log("Account balance:", (await deployer.getBalance()/10**18).toString());
+    
   const FARMERFACTORY = await hre.ethers.getContractFactory("FarmersFactory");
   const factory = await FARMERFACTORY.deploy();
-
   await factory.deployed();
 
   console.log("Factory deployed to:", factory.address);
+  
 }
 
 // We recommend this pattern to be able to use async/await everywhere
