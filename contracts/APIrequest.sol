@@ -10,7 +10,7 @@ ChainlinkOracle: 0x188b71C9d27cDeE01B9b0dfF5C1aff62E8D6F434
 JobId: 7599d3c8f31e4ce78ad2b790cbcfc673 or ca98366cc7314957b8c012c72f05aeeb or fcf4140d696d44b687012232948bdd5d
 
 Polygon testnet:
-ChainlinkToken: 0x326C977E6efc84E512bB9C30f76E30c160eD06FB
+ChainlinkToken: 0xb0897686c545045aFc77CF20eC7A532E3120E0F1
 ChainlinkOracle: 0x40193c8518BB267228Fc409a613bDbD8eC5a97b3
 JobId: 7599d3c8f31e4ce78ad2b790cbcfc673 or ca98366cc7314957b8c012c72f05aeeb or fcf4140d696d44b687012232948bdd5d
  */
@@ -31,7 +31,7 @@ contract GetUint256 is ChainlinkClient, ConfirmedOwner {
 
     constructor() ConfirmedOwner(msg.sender) {
         // GOERLI
-        setChainlinkToken(0x326C977E6efc84E512bB9C30f76E30c160eD06FB);
+        setChainlinkToken(0xb0897686c545045aFc77CF20eC7A532E3120E0F1);
         setChainlinkOracle(0x188b71C9d27cDeE01B9b0dfF5C1aff62E8D6F434);
     }
 

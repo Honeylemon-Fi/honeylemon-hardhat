@@ -27,7 +27,7 @@ event FutureBought(address indexed sender, uint256 amount);
 constructor(IERC20 _rToken, uint _expiryDate, address _factory, string memory _name, string memory _symbol) ERC20(_name, _symbol) {
     factory = _factory;
     reserveToken = _rToken;
-    setChainlinkToken(0x326C977E6efc84E512bB9C30f76E30c160eD06FB);
+    setChainlinkToken(0xb0897686c545045aFc77CF20eC7A532E3120E0F1);
     setChainlinkOracle(0x188b71C9d27cDeE01B9b0dfF5C1aff62E8D6F434);
     jobId = '7599d3c8f31e4ce78ad2b790cbcfc673';
     fee = (1 * LINK_DIVISIBILITY) / 10;

@@ -10,7 +10,7 @@ module.exports = {
   },
   networks: {
     polygon: {
-      url: "https://rpc.ankr.com/polygon_mumbai",
+      url: "https://polygon-rpc.com",
       accounts: [process.env.MUMBAI]
     },
     goerli: {
@@ -21,3 +21,4 @@ module.exports = {
     }
   }
 };
+//url mumbai: "https://rpc.ankr.com/polygon_mumbai"
