@@ -1,16 +1,28 @@
 require("@nomicfoundation/hardhat-toolbox");
 require("@nomiclabs/hardhat-etherscan");
 require('dotenv').config();
+require('hardhat-abi-exporter');
+
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   solidity: "0.8.12",
+  abiExporter: {
+    path: './data/abi',
+    runOnCompile: true,
+    clear: true,
+    flat: true,
+    only: ['HLCORNFuture', 'HLWHEATFuture', 'FarmersFactory'],
+    except: [':ERC20Mock$'],
+    spacing: 2,
+    pretty: false,
+  },
   etherscan: {
     apiKey: "9VGZYWW2VAZVZ1DAYTR2RAZFCTQ79YU7P7",
   },
   networks: {
     polygon: {
-      url: "https://polygon-rpc.com",
+      url: "https://rpc.ankr.com/polygon",
       accounts: [process.env.MUMBAI]
     },
     goerli: {
