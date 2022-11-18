@@ -39,7 +39,7 @@ function requestVolumeData() public returns (bytes32 requestId) {
         req.add('get', string.concat('https://commodities-api.com/api/latest?access_key=l4whf5gklaqeprcpijtws8tbo5y8hx46u6hmc6pv6yrlm6uu9cggjwfoea1v&base=USD&symbols=', this.name()));
         req.add('path', string.concat('data,rates,', this.name()));
         int256 timesAmount = 10**18;
-        req.addInt('times', timesAmount);
+        req.addInt('multiply', timesAmount);
         return sendChainlinkRequest(req, fee);
     }
 

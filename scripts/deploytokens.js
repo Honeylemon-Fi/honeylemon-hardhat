@@ -12,17 +12,12 @@ async function main() {
   console.log("Deploying contracts with the account:", deployer.address);
   console.log("Account balance:", (await deployer.getBalance()/10**18).toString());
     
-  const Token = await hre.ethers.getContractFactory("CornCoin");
-  const tokenCORN = await Token.deploy();
-  await tokenCORN.deployed();
+  const Token = await hre.ethers.getContractFactory("TestUSDCoin");
+  const tokenUSDR = await Token.deploy();
+  await tokenUSDR.deployed();
 
-  console.log("CORN token deployed to:", tokenCORN.address);
+  console.log("USDR token deployed to:", tokenUSDR.address);
 
-  const Token2 = await hre.ethers.getContractFactory("WheatCoin");
-  const tokenWHEAT = await Token2.deploy();
-  await tokenWHEAT.deployed();
-  
-  console.log("WHEAT token deployed to:", tokenWHEAT.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

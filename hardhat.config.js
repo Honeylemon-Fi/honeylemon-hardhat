@@ -22,3 +22,4 @@ module.exports = {
   }
 };
 //url mumbai: "https://rpc.ankr.com/polygon_mumbai"
+//goerli API not active anymore
