@@ -2,9 +2,10 @@
 pragma solidity ^0.8.12;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import './imports/ChainlinkClient.sol';
 
-contract HLFutures is ERC20, ChainlinkClient{
+contract HLWHEATFuture is ERC20, ChainlinkClient, Initializable {
 using Chainlink for Chainlink.Request;
 
 //Chainlink
@@ -13,12 +14,11 @@ bytes32 private jobId;
 uint256 private fee;
 
 //Logic
-mapping (address => uint) tradeAmount;
-IERC20 immutable public reserveToken;
+mapping (address => uint) public tradeAmount;
+IERC20  public reserveToken;
 uint public BASEPRICE;
-uint immutable public expiryDate;
-address immutable public factory;
-address immutable public farmer;
+uint  public expiryDate;
+address  public farmer;
 
 event RequestVolume(bytes32 indexed requestId, uint256 volume);
 event Mint(address indexed sender, uint256 amount);
@@ -28,8 +28,11 @@ modifier onlyFarmer() {
     require(msg.sender == farmer, "FARMER ONLY");
     _;
 }
-constructor(IERC20 _rToken, address _farmer, uint _expiryDate, address _factory, string memory _name, string memory _symbol) ERC20(_name, _symbol) {
-    factory = _factory;
+
+constructor () ERC20("WHEAT", "WHEAT") {
+}
+
+function initialize (IERC20 _rToken, address _farmer, uint _expiryDate, uint _amount) external initializer {
     reserveToken = _rToken;
     farmer = _farmer;
     setChainlinkToken(0xb0897686c545045aFc77CF20eC7A532E3120E0F1);
@@ -37,7 +40,7 @@ constructor(IERC20 _rToken, address _farmer, uint _expiryDate, address _factory,
     jobId = '7599d3c8f31e4ce78ad2b790cbcfc673';
     fee = (1 * LINK_DIVISIBILITY) / 10;
     expiryDate = _expiryDate;
-
+    _mint(address(this), _amount);
     requestVolumeData();
 }
 
@@ -45,8 +48,7 @@ function requestVolumeData() private returns (bytes32 requestId) {
         Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.fulfill.selector);
         req.add('get', string.concat('https://commodities-api.com/api/latest?access_key=l4whf5gklaqeprcpijtws8tbo5y8hx46u6hmc6pv6yrlm6uu9cggjwfoea1v&base=USD&symbols=', this.name()));
         req.add('path', string.concat('data,rates,', this.name()));
-        int256 timesAmount = 10**18;
-        req.addInt('multiply', timesAmount);
+        req.addInt('multiply', 1000000000000000);
         return sendChainlinkRequest(req, fee);
     }
 
@@ -58,12 +60,6 @@ function requestVolumeData() private returns (bytes32 requestId) {
     function withdrawLink() public onlyFarmer {
         LinkTokenInterface link = LinkTokenInterface(chainlinkTokenAddress());
         require(link.transfer(msg.sender, link.balanceOf(address(this))), 'Unable to transfer');
-    }
-
-    function mint(uint256 _amount) external {
-        require(msg.sender == factory, "NOT FACTORY");
-        _mint(address(this), _amount);
-        emit Mint(msg.sender, _amount);
     }
 
     function buyFuture(uint _amount) external {

@@ -11,11 +11,23 @@ async function main() {
   
   console.log("Deploying contracts with the account:", deployer.address);
   console.log("Account balance:", (await deployer.getBalance()/10**18).toString());
+
+  const HLWHEAT = await hre.ethers.getContractFactory("HLWHEATFuture");
+  const wheat = await HLWHEAT.deploy();
+  await wheat.deployed();
+  console.log("Wheat deployed to:", wheat.address);
+
+  const HLCORN = await hre.ethers.getContractFactory("HLCORNFuture");
+  const corn = await HLCORN.deploy();
+  await corn.deployed();
+  console.log("CORN deployed to:", corn.address);
     
   const FARMERFACTORY = await hre.ethers.getContractFactory("FarmersFactory");
-  const factory = await FARMERFACTORY.deploy();
+  const factory = await FARMERFACTORY.deploy(wheat.address, corn.address);
   await factory.deployed();
 
+  console.log("Wheat deployed to:", wheat.address);
+  console.log("CORN deployed to:", corn.address);
   console.log("Factory deployed to:", factory.address);
   
 }
