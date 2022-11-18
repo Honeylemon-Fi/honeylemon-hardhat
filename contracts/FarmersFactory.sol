@@ -18,7 +18,7 @@ contract FarmersFactory is Ownable{
     }
 
     function createWheatFuture(address rToken, uint256 amount, uint256 expiryDate) external returns (address farm) {
-        HLFutures newFarm = new HLFutures(IERC20(rToken), expiryDate, address(this), "WHEAT", "WHEAT");
+        HLFutures newFarm = new HLFutures(IERC20(rToken), msg.sender, expiryDate, address(this), "WHEAT", "WHEAT");
         allFutures.push(address(newFarm));
         emit FutureCreated(rToken, amount, expiryDate, allFutures.length);
         HLFutures(address(newFarm)).mint(amount);
@@ -26,7 +26,7 @@ contract FarmersFactory is Ownable{
     }
 
     function createCornFuture(address rToken, uint256 amount, uint256 expiryDate) external returns (address farm) {
-        HLFutures newFarm = new HLFutures(IERC20(rToken), expiryDate, address(this), "CORN", "CORN");
+        HLFutures newFarm = new HLFutures(IERC20(rToken), msg.sender, expiryDate, address(this), "CORN", "CORN");
         allFutures.push(address(newFarm));
         emit FutureCreated(rToken, amount, expiryDate, allFutures.length);
         HLFutures(address(newFarm)).mint(amount);

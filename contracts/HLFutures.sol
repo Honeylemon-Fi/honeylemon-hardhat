@@ -3,9 +3,8 @@ pragma solidity ^0.8.12;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import './imports/ChainlinkClient.sol';
-import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract HLFutures is ERC20, ChainlinkClient, Ownable{
+contract HLFutures is ERC20, ChainlinkClient{
 using Chainlink for Chainlink.Request;
 
 //Chainlink
@@ -19,22 +18,30 @@ IERC20 immutable public reserveToken;
 uint public BASEPRICE;
 uint immutable public expiryDate;
 address immutable public factory;
+address immutable public farmer;
 
 event RequestVolume(bytes32 indexed requestId, uint256 volume);
 event Mint(address indexed sender, uint256 amount);
 event FutureBought(address indexed sender, uint256 amount);
 
-constructor(IERC20 _rToken, uint _expiryDate, address _factory, string memory _name, string memory _symbol) ERC20(_name, _symbol) {
+modifier onlyFarmer() {
+    require(msg.sender == farmer, "FARMER ONLY");
+    _;
+}
+constructor(IERC20 _rToken, address _farmer, uint _expiryDate, address _factory, string memory _name, string memory _symbol) ERC20(_name, _symbol) {
     factory = _factory;
     reserveToken = _rToken;
+    farmer = _farmer;
     setChainlinkToken(0xb0897686c545045aFc77CF20eC7A532E3120E0F1);
     setChainlinkOracle(0x188b71C9d27cDeE01B9b0dfF5C1aff62E8D6F434);
     jobId = '7599d3c8f31e4ce78ad2b790cbcfc673';
     fee = (1 * LINK_DIVISIBILITY) / 10;
     expiryDate = _expiryDate;
+
+    requestVolumeData();
 }
 
-function requestVolumeData() public returns (bytes32 requestId) {
+function requestVolumeData() private returns (bytes32 requestId) {
         Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.fulfill.selector);
         req.add('get', string.concat('https://commodities-api.com/api/latest?access_key=l4whf5gklaqeprcpijtws8tbo5y8hx46u6hmc6pv6yrlm6uu9cggjwfoea1v&base=USD&symbols=', this.name()));
         req.add('path', string.concat('data,rates,', this.name()));
@@ -48,7 +55,7 @@ function requestVolumeData() public returns (bytes32 requestId) {
         BASEPRICE = _volume;
     }
 
-    function withdrawLink() public onlyOwner {
+    function withdrawLink() public onlyFarmer {
         LinkTokenInterface link = LinkTokenInterface(chainlinkTokenAddress());
         require(link.transfer(msg.sender, link.balanceOf(address(this))), 'Unable to transfer');
     }
@@ -74,14 +81,14 @@ function requestVolumeData() public returns (bytes32 requestId) {
         tradeAmount[msg.sender] += _amount;
     }
 
-    function signTrade(address _trader, uint _amount) external onlyOwner {
+    function signTrade(address _trader, uint _amount) external onlyFarmer {
         require(block.timestamp > expiryDate, "FUTURE IS GOING");
         require(tradeAmount[_trader] > 0, "Invalid Trader");
         _burn(address(this), _amount);
         tradeAmount[_trader] -= _amount;
     }
 
-    function withdrawFund(uint _amount) external onlyOwner {
+    function withdrawFund(uint _amount) external onlyFarmer {
         require(block.timestamp < expiryDate, "FUTURE EXPIRED");
         reserveToken.approve(msg.sender, _amount);
         reserveToken.transferFrom(address(this), msg.sender, _amount);
